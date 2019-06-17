@@ -16,10 +16,10 @@ class ConfigsCenter
     private static $_more = [];
     public static $cache_dir = null;
 
-    public static function setConfig(string $server_api_pre, string $cache_dir, int $id = 0)
+    public static function setConfig(string $server_api_pre, string $cache_dir, int $cls_id = 0)
     {
         self::$_server_api_pre = $server_api_pre;
-        self::$_cls_id = $id;
+        self::$_cls_id = $cls_id;
         self::$cache_dir = $cache_dir;
     }
 
@@ -28,9 +28,9 @@ class ConfigsCenter
         return self::instance(self::$_cls_id)->getConfig($key, $array_enable);
     }
 
-    public static function instance(int $id = 0): ConfigManager
+    public static function instance(int $cls_id = 0): ConfigManager
     {
-        return isset(self::$_more[$id]) ? self::$_more[$id] : (self::$_more[$id] = new ConfigManager($id));
+        return isset(self::$_more[$cls_id]) ? self::$_more[$cls_id] : (self::$_more[$cls_id] = new ConfigManager($cls_id));
     }
 
     public static function handlePost()
