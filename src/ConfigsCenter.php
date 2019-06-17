@@ -25,6 +25,11 @@ class ConfigsCenter
 
     public static function getConfig(string $key = null, bool $array_enable = false)
     {
+        if (self::$_cls_id===0)
+        {
+            echo "\$_cls_id==0;";
+            exit;
+        }
         return self::instance(self::$_cls_id)->getConfig($key, $array_enable);
     }
 
