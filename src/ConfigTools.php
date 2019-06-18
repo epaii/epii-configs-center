@@ -92,7 +92,7 @@ class ConfigTools
         echo json_encode([
             "msg" => $msg,
             "code" => $code
-        ]);
+        ],JSON_UNESCAPED_UNICODE);
 
         exit;
     }
