@@ -61,10 +61,17 @@ class ConfigsCenter
             exit;
         } else {
             if (isset($_GET['check']) && $_GET['check'] = 1) {
+                if (!is_dir(self::$cache_dir))
+                {
+                    if (!mkdir(self::$cache_dir,0777,true))
+                    {
+                        ConfigTools::error("dir wrong 1");
+                    }
+                }
                 if (is_writeable(self::$cache_dir)) {
-                    echo json_encode(['code' => 1]);
+                   ConfigTools::success("成功");
                 } else {
-                    echo json_encode(['code' => 0]);
+                    ConfigTools::error("目录不可写");
                 }
             }
             ConfigTools::error("POST data is undefined");
