@@ -10,29 +10,38 @@ namespace epii\configs\center;
 
 class ConfigsCenter
 {
-    private static $_server_api_pre = null;
+    private static $server_url = null;
     private static $_cls_id = 0;
 
     private static $_more = [];
 
     public static $cache_dir = null;
-    public static $goto_config_url = null;
 
-    public static function setConfig(string $cache_dir, int $cls_id = 0, string $goto_config_url = null, string $server_api_pre = null)
+    // public static $goto_config_url = null;
+
+    public static function setConfig(string $cache_dir, int $cls_id = 0, string $server_url = null)
     {
-        self::$goto_config_url = $goto_config_url;
-        self::$_server_api_pre = $server_api_pre;
+        //  self::$goto_config_url = $goto_config_url;
+        if ($server_url === null) {
+            $server_url = "";
+        }
+        self::$server_url = $server_url;
         self::$_cls_id = $cls_id;
         self::$cache_dir = $cache_dir;
     }
 
-    public static function getConfig(string $key = null, int $obj_id = 0, bool $array_enable = false)
+    public static function getConfig(int $instance_id, string $key = null, bool $array_enable = false)
     {
         if (self::$_cls_id === 0) {
             echo "\$_cls_id==0;";
             exit;
         }
-        return self::instance(self::$_cls_id)->getConfig($key, $obj_id, $array_enable);
+        return self::instance(self::$_cls_id)->getConfig($instance_id, $key, $array_enable);
+    }
+
+    public static function getAllConfig(int $instance_id, bool $array_enable = false)
+    {
+        return self::getConfig($instance_id, null, $array_enable);
     }
 
     public static function instance(int $cls_id = 0): ConfigManager
@@ -47,58 +56,42 @@ class ConfigsCenter
             if (empty($_POST['object_id'])) exit("object_id is undefined");
             if (empty($_POST['config'])) exit("config is undefined");
 
-            $file_name = self::getCacheFileName($_POST['class_id'], $_POST['object_id']);
-            $config = json_decode($_POST['config'], true);
 
-            @$has_config = include $file_name;
+            $file_name = ConfigTools::getCacheFileName($_POST['class_id'], $_POST['object_id']);
 
-            if(empty($has_config)){
-                $has_config = [];
-            }
-            foreach ($config as $k => $v) {
-                if (isset($has_config[$k])) {
-                    if ($has_config[$k] != $config[$k]) {
-                        $has_config[$k] = $config[$k];
-                    }
-                } else {
-                    $has_config[$k] = $config[$k];
+            if (file_exists($file_name))
+                @unlink($file_name);
+
+
+            $path_dir = pathinfo($file_name, PATHINFO_DIRNAME);
+            if (!is_dir($path_dir)) {
+                if (!mkdir($path_dir, 0777, true)) {
+                    exit(90);
                 }
             }
 
-            @unlink($file_name);
-            self::creatCacheFilePath($_POST['class_id']);
-            file_put_contents($file_name, "<?php \n return ", FILE_APPEND);
+
             ob_start();
-            var_export($has_config);
-            file_put_contents($file_name, ob_get_contents(), FILE_APPEND);
+            echo "<?php \n return ";
+            $cofig = [$json_config = json_decode($_POST['config'], true), ConfigTools::parse($json_config)];
+            var_export($cofig);
+            echo ";" . PHP_EOL;
             ob_end_clean();
-            file_put_contents($file_name, ";" . PHP_EOL, FILE_APPEND);
-            echo json_encode(['code' => 100]);
+            file_put_contents($file_name, ob_get_contents());
+            echo json_encode(['code' => 1]);
             exit;
         } else {
             exit("POST data is undefined");
         }
     }
 
-    public static function gotoConfig(int $cls_id, int $obj_id)
+    public static function getConfigCenterUrl(int $instance_id, int $cls_id = 0)
     {
-        $goto_config_url = self::$goto_config_url."?c_id=".$cls_id."&id=".$obj_id;
-        header("location:".$goto_config_url);
-        exit;
+        if ($cls_id === 0) $cls_id = self::$_cls_id;
+
+        return self::$server_url . "?c_id=" . $cls_id . "&id=" . $instance_id;
+
     }
 
-    public static function getCacheFileName($class_id, $object_id)
-    {
-        return ConfigsCenter::$cache_dir . "/" . $class_id . "/config" . $class_id . "_" . $object_id . ".php";
-    }
 
-    public static function creatCacheFilePath($class_id)
-    {
-        @mkdir(ConfigsCenter::$cache_dir ."/" . $class_id ."/" , 0777, true);
-    }
-
-    public static function getCachePathByClsId($class_id)
-    {
-        return ConfigsCenter::$cache_dir ."/" . $class_id ."";
-    }
 }
