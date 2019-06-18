@@ -35,7 +35,7 @@ class ConfigManager
                 //通过接口从服务器获取
                 $api_config = file_get_contents("http://test.con.com?app=getconfig@index&cls_id=".$this->__cls_id."&instance_id=".$instance_id."");
 
-                $this->_config_all[$instance_id] = json_encode($api_config['config'],true);
+                $this->_config_all[$instance_id] = json_decode($api_config['config'],true);
             } else {
                 $this->_config_all[$instance_id] = $cache_config;
             }
