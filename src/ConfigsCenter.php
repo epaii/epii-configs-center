@@ -43,7 +43,6 @@ class ConfigsCenter
     public static function handlePost()
     {
         if ($_POST) {
-            var_dump($_POST);
             if (empty($_POST['class_id'])) exit("class_id is undefined");
             if (empty($_POST['object_id'])) exit("object_id is undefined");
             if (empty($_POST['config'])) exit("config is undefined");
@@ -65,20 +64,27 @@ class ConfigsCenter
                     $has_config[$k] = $config[$k];
                 }
             }
-            if (file_exists($file_name)) {
-                @unlink($file_name);
-            }else{
-                self::getCacheFileName($_POST['class_id']);
-                file_put_contents($file_name, "<?php \n return ", FILE_APPEND);
-                ob_start();
-                var_export($has_config);
-                file_put_contents($file_name, ob_get_contents(), FILE_APPEND);
-                ob_end_clean();
-                file_put_contents($file_name, ";" . PHP_EOL, FILE_APPEND);
-            }
+
+            @unlink($file_name);
+            self::creatCacheFilePath($_POST['class_id']);
+            file_put_contents($file_name, "<?php \n return ", FILE_APPEND);
+            ob_start();
+            var_export($has_config);
+            file_put_contents($file_name, ob_get_contents(), FILE_APPEND);
+            ob_end_clean();
+            file_put_contents($file_name, ";" . PHP_EOL, FILE_APPEND);
+            echo json_encode(['code' => 100]);
+            exit;
         } else {
             exit("POST data is undefined");
         }
+    }
+
+    public static function gotoConfig(int $cls_id, int $obj_id)
+    {
+        $goto_config_url = self::$goto_config_url."?c_id=".$cls_id."&id=".$obj_id;
+        header("location:".$goto_config_url);
+        exit;
     }
 
     public static function getCacheFileName($class_id, $object_id)
