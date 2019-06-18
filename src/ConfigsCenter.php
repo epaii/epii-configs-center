@@ -74,6 +74,6 @@ class ConfigsCenter
     public static function getConfigCenterUrl(int $instance_id, int $cls_id = 0)
     {
         if ($cls_id === 0) $cls_id = self::$_cls_id;
-        return self::$server_url . "?app=c_id=" . $cls_id . "&id=" . $instance_id;
+        return self::$server_url . "?app=instance@index&c_id=" . $cls_id . "&id=" . $instance_id;
     }
 }
