@@ -52,11 +52,12 @@ class ConfigsCenter
     public static function handlePost()
     {
         if ($_POST) {
-            if (empty($_POST['class_id'])) exit("class_id is undefined");
-            if (empty($_POST['object_id'])) exit("object_id is undefined");
-            if (empty($_POST['config'])) exit("config is undefined");
+            if (empty($_POST['class_id'])) ConfigTools::error("class_id is undefined");
+            if (empty($_POST['object_id'])) ConfigTools::error("object_id is undefined");
+            if (empty($_POST['config'])) ConfigTools::error("config is undefined");
+
             $out = ConfigTools::saveConfigCache($_POST["class_id"], $_POST["object_id"], [$json_config = json_decode($_POST["config"], true), ConfigTools::parse($json_config)]);
-            echo json_encode(['code' => $out ? 1 : 0]);
+            ConfigTools::success('success');
             exit;
         } else {
             if (isset($_GET['check']) && $_GET['check'] = 1) {
@@ -66,15 +67,13 @@ class ConfigsCenter
                     echo json_encode(['code' => 0]);
                 }
             }
-            exit("POST data is undefined");
+            ConfigTools::error("POST data is undefined");
         }
     }
 
     public static function getConfigCenterUrl(int $instance_id, int $cls_id = 0)
     {
         if ($cls_id === 0) $cls_id = self::$_cls_id;
-
-        return self::$server_url . "?c_id=" . $cls_id . "&id=" . $instance_id;
-
+        return self::$server_url . "?app=c_id=" . $cls_id . "&id=" . $instance_id;
     }
 }

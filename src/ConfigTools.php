@@ -68,4 +68,32 @@ class ConfigTools
         $content = ob_get_clean();
         return file_put_contents($file_name, $content);
     }
+
+
+    public static function success($msg , $code = null)
+    {
+        if(!$code){
+            $code = 2;
+        }
+        echo json_encode([
+            "msg" => $msg,
+            "code" => $code
+        ]);
+
+        exit;
+    }
+
+
+    public static function error($msg , $code = null)
+    {
+        if(!$code){
+            $code = 1;
+        }
+        echo json_encode([
+            "msg" => $msg,
+            "code" => $code
+        ]);
+
+        exit;
+    }
 }
