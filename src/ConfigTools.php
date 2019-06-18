@@ -70,9 +70,9 @@ class ConfigTools
     }
 
 
-    public static function success($msg , $code = null)
+    public static function success($msg, $code = null)
     {
-        if(!$code){
+        if (!$code) {
             $code = 2;
         }
         echo json_encode([
@@ -84,9 +84,9 @@ class ConfigTools
     }
 
 
-    public static function error($msg , $code = null)
+    public static function error($msg, $code = null)
     {
-        if(!$code){
+        if (!$code) {
             $code = 1;
         }
         echo json_encode([
@@ -95,5 +95,10 @@ class ConfigTools
         ]);
 
         exit;
+    }
+
+    public static function mksign($class_id, $item_id)
+    {
+        return md5(implode("-", [$class_id, $item_id, ConfigsCenter::$_class_config[$class_id]]));
     }
 }
