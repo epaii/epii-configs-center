@@ -26,14 +26,13 @@ class ConfigsCenter
         self::$cache_dir = $cache_dir;
     }
 
-    public static function getConfig(string $key = null, bool $array_enable = false)
+    public static function getConfig(string $key = null, int $obj_id = 0, bool $array_enable = false)
     {
-        if (self::$_cls_id===0)
-        {
+        if (self::$_cls_id === 0) {
             echo "\$_cls_id==0;";
             exit;
         }
-        return self::instance(self::$_cls_id)->getConfig($key, $array_enable);
+        return self::instance(self::$_cls_id)->getConfig($key, $obj_id, $array_enable);
     }
 
     public static function instance(int $cls_id = 0): ConfigManager
@@ -43,41 +42,57 @@ class ConfigsCenter
 
     public static function handlePost()
     {
-        if($_POST){
-            if(empty($_POST['class_id'])) exit("class_id is undefined");
-            if(empty($_POST['object_id'])) exit("object_id is undefined");
+        if ($_POST) {
+            var_dump($_POST);
+            if (empty($_POST['class_id'])) exit("class_id is undefined");
+            if (empty($_POST['object_id'])) exit("object_id is undefined");
+            if (empty($_POST['config'])) exit("config is undefined");
 
-            $file_name = self::getCacheFileName($_POST['class_id'],$_POST['object_id']);
-            if(file_exists($file_name)){
-                $config = json_decode($_POST['config'],true);
-                $has_config = include $file_name;
+            $file_name = self::getCacheFileName($_POST['class_id'], $_POST['object_id']);
+            $config = json_decode($_POST['config'], true);
 
-                foreach ($config as $k => $v){
-                    if(isset($has_config[$k])){
-                        if($has_config[$k] != $config[$k]){
-                            $has_config[$k] = $config[$k];
-                        }
-                    }else{
+            @$has_config = include $file_name;
+
+            if(empty($has_config)){
+                $has_config = [];
+            }
+            foreach ($config as $k => $v) {
+                if (isset($has_config[$k])) {
+                    if ($has_config[$k] != $config[$k]) {
                         $has_config[$k] = $config[$k];
                     }
+                } else {
+                    $has_config[$k] = $config[$k];
                 }
-
-                @unlink($file_name);
             }
-            @mkdir(ConfigsCenter::$cache_dir,0777,true);
-            file_put_contents($file_name,"<?php \n return ",FILE_APPEND);
-            ob_start();
-            var_export($config);
-            file_put_contents($file_name,ob_get_contents(),FILE_APPEND);
-            ob_end_clean();
-            file_put_contents($file_name,";".PHP_EOL,FILE_APPEND);
-        }else{
-            exit("POST is undefined");
+            if (file_exists($file_name)) {
+                @unlink($file_name);
+            }else{
+                self::getCacheFileName($_POST['class_id']);
+                file_put_contents($file_name, "<?php \n return ", FILE_APPEND);
+                ob_start();
+                var_export($has_config);
+                file_put_contents($file_name, ob_get_contents(), FILE_APPEND);
+                ob_end_clean();
+                file_put_contents($file_name, ";" . PHP_EOL, FILE_APPEND);
+            }
+        } else {
+            exit("POST data is undefined");
         }
     }
 
     public static function getCacheFileName($class_id, $object_id)
     {
-        return ConfigsCenter::$cache_dir."/config".$class_id."_".$object_id.".php";
+        return ConfigsCenter::$cache_dir . "/" . $class_id . "/config" . $class_id . "_" . $object_id . ".php";
+    }
+
+    public static function creatCacheFilePath($class_id)
+    {
+        @mkdir(ConfigsCenter::$cache_dir ."/" . $class_id ."/" , 0777, true);
+    }
+
+    public static function getCachePathByClsId($class_id)
+    {
+        return ConfigsCenter::$cache_dir ."/" . $class_id ."";
     }
 }
