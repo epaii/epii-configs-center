@@ -56,12 +56,10 @@ class ConfigsCenter
             if (empty($_POST['object_id'])) exit("object_id is undefined");
             if (empty($_POST['config'])) exit("config is undefined");
 
-
             $file_name = ConfigTools::getCacheFileName($_POST['class_id'], $_POST['object_id']);
 
             if (file_exists($file_name))
                 @unlink($file_name);
-
 
             $path_dir = pathinfo($file_name, PATHINFO_DIRNAME);
             if (!is_dir($path_dir)) {
@@ -70,14 +68,13 @@ class ConfigsCenter
                 }
             }
 
-
             ob_start();
             echo "<?php \n return ";
             $cofig = [$json_config = json_decode($_POST['config'], true), ConfigTools::parse($json_config)];
             var_export($cofig);
             echo ";" . PHP_EOL;
-            ob_end_clean();
-            file_put_contents($file_name, ob_get_contents());
+            $content = ob_get_clean();
+            file_put_contents($file_name, $content);
             echo json_encode(['code' => 1]);
             exit;
         } else {
@@ -92,6 +89,4 @@ class ConfigsCenter
         return self::$server_url . "?c_id=" . $cls_id . "&id=" . $instance_id;
 
     }
-
-
 }
