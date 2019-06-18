@@ -33,9 +33,15 @@ class ConfigManager
             $cache_config = $this->getConfigFromCache($instance_id);
             if ($cache_config === null) {
                 //通过接口从服务器获取
-                $api_config = file_get_contents("http://test.con.com?app=getconfig@index&cls_id=".$this->__cls_id."&instance_id=".$instance_id."");
+                $api_config = file_get_contents(ConfigsCenter::$server_url . "?app=getconfig@index&cls_id=" . $this->__cls_id . "&instance_id=" . $instance_id . "");
 
-                $this->_config_all[$instance_id] = json_decode($api_config['config'],true);
+                $this->_config_all[$instance_id] = [$json_config = json_decode($api_config["config"], true), ConfigTools::parse($json_config)];
+
+                if (isset($api_config['is_cache']) && ($api_config['is_cache']-1==0))
+                {
+                    ConfigTools::saveConfigCache($this->__cls_id,$instance_id,$this->_config_all[$instance_id]);
+                }
+
             } else {
                 $this->_config_all[$instance_id] = $cache_config;
             }
@@ -53,24 +59,21 @@ class ConfigManager
             }
         }
 
-        if (!is_array($key)){
+        if (!is_array($key)) {
             return isset($this_config[$local_config_index][$key]) ? $this_config[$local_config_index][$key] : null;
         }
 
         $out = $this_config[$local_config_index];
 
-        foreach ($key as $value)
-        {
-            if (isset($out[$value]))
-            {
+        foreach ($key as $value) {
+            if (isset($out[$value])) {
                 $out = $out[$value];
-            }else{
+            } else {
                 return null;
             }
         }
         return $out;
     }
-
 
 
     public function getConfigFromCache(int $instance_id)

@@ -10,7 +10,7 @@ namespace epii\configs\center;
 
 class ConfigsCenter
 {
-    private static $server_url = null;
+    public static $server_url = null;
     private static $_cls_id = 0;
 
     private static $_more = [];
@@ -19,13 +19,13 @@ class ConfigsCenter
 
     // public static $goto_config_url = null;
 
-    public static function setConfig(string $cache_dir, int $cls_id = 0, string $server_url = null)
+    public static function setConfig(string $cache_dir, int $cls_id = 0, string $server_url_pre = null)
     {
         //  self::$goto_config_url = $goto_config_url;
-        if ($server_url === null) {
-            $server_url = "";
+        if ($server_url_pre === null) {
+            $server_url_pre = "";
         }
-        self::$server_url = $server_url;
+        self::$server_url = $server_url_pre;
         self::$_cls_id = $cls_id;
         self::$cache_dir = $cache_dir;
     }
@@ -55,27 +55,8 @@ class ConfigsCenter
             if (empty($_POST['class_id'])) exit("class_id is undefined");
             if (empty($_POST['object_id'])) exit("object_id is undefined");
             if (empty($_POST['config'])) exit("config is undefined");
-
-            $file_name = ConfigTools::getCacheFileName($_POST['class_id'], $_POST['object_id']);
-
-            if (file_exists($file_name))
-                @unlink($file_name);
-
-            $path_dir = pathinfo($file_name, PATHINFO_DIRNAME);
-            if (!is_dir($path_dir)) {
-                if (!mkdir($path_dir, 0777, true)) {
-                    exit(90);
-                }
-            }
-
-            ob_start();
-            echo "<?php \n return ";
-            $cofig = [$json_config = json_decode($_POST['config'], true), ConfigTools::parse($json_config)];
-            var_export($cofig);
-            echo ";" . PHP_EOL;
-            $content = ob_get_clean();
-            file_put_contents($file_name, $content);
-            echo json_encode(['code' => 1]);
+            $out = ConfigTools::saveConfigCache($_POST["class_id"], $_POST["object_id"], [$json_config = json_decode($_POST["config"], true), ConfigTools::parse($json_config)]);
+            echo json_encode(['code' => $out ? 1 : 0]);
             exit;
         } else {
             if (isset($_GET['check']) && $_GET['check'] = 1) {

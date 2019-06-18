@@ -25,13 +25,14 @@ class ConfigTools
     {
         return ConfigsCenter::$cache_dir . "/" . $class_id . "";
     }
+
     private static function parseKeyValue($key, $value, &$p)
     {
 
         if (stripos($key, ".") > 0) {
-            if(!isset($p[$tmp = substr($key, 0, $index = strpos($key, "."))]))
-                $p[$tmp ] = [];
-            self::parseKeyValue(substr($key, $index+1), $value, $p[$tmp]);
+            if (!isset($p[$tmp = substr($key, 0, $index = strpos($key, "."))]))
+                $p[$tmp] = [];
+            self::parseKeyValue(substr($key, $index + 1), $value, $p[$tmp]);
         } else
             $p[$key] = $value;
     }
@@ -40,8 +41,31 @@ class ConfigTools
     {
         $out = [];
         foreach ($array as $key => $value) {
-            self::parseKeyValue($key,$value,$out);
+            self::parseKeyValue($key, $value, $out);
         }
         return $out;
+    }
+
+    public static function saveConfigCache($class_id, $object_id, $config)
+    {
+        $file_name = ConfigTools::getCacheFileName($class_id, $object_id);
+
+        if (file_exists($file_name))
+            @unlink($file_name);
+
+        $path_dir = pathinfo($file_name, PATHINFO_DIRNAME);
+        if (!is_dir($path_dir)) {
+            if (!mkdir($path_dir, 0777, true)) {
+                exit(90);
+            }
+        }
+
+        ob_start();
+        echo "<?php \n return ";
+
+        var_export($config);
+        echo ";" . PHP_EOL;
+        $content = ob_get_clean();
+        return file_put_contents($file_name, $content);
     }
 }
