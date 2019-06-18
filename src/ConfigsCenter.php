@@ -23,7 +23,7 @@ class ConfigsCenter
     {
         //  self::$goto_config_url = $goto_config_url;
         if ($server_url_pre === null) {
-            $server_url_pre = "";
+            $server_url_pre = "http://configs.wszx.cc/";
         }
         self::$server_url = $server_url_pre;
         self::$_cls_id = $cls_id;
@@ -61,15 +61,13 @@ class ConfigsCenter
             exit;
         } else {
             if (isset($_GET['check']) && $_GET['check'] = 1) {
-                if (!is_dir(self::$cache_dir))
-                {
-                    if (!mkdir(self::$cache_dir,0777,true))
-                    {
+                if (!is_dir(self::$cache_dir)) {
+                    if (!mkdir(self::$cache_dir, 0777, true)) {
                         ConfigTools::error("dir wrong 1");
                     }
                 }
                 if (is_writeable(self::$cache_dir)) {
-                   ConfigTools::success("成功");
+                    ConfigTools::success("成功");
                 } else {
                     ConfigTools::error("目录不可写");
                 }
