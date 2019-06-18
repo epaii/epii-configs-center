@@ -99,6 +99,9 @@ class ConfigTools
 
     public static function mksign($class_id, $item_id)
     {
+        if (!isset(ConfigsCenter::$_class_config[$class_id])) {
+            ConfigTools::error("no set sign");
+        }
         return md5(implode("-", [$class_id, $item_id, ConfigsCenter::$_class_config[$class_id]]));
     }
 }
