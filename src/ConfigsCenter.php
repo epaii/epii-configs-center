@@ -78,6 +78,13 @@ class ConfigsCenter
             echo json_encode(['code' => 1]);
             exit;
         } else {
+            if (isset($_GET['check']) && $_GET['check'] = 1) {
+                if (is_writeable(self::$cache_dir)) {
+                    echo json_encode(['code' => 1]);
+                } else {
+                    echo json_encode(['code' => 0]);
+                }
+            }
             exit("POST data is undefined");
         }
     }
