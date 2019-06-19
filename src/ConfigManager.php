@@ -15,17 +15,17 @@ class ConfigManager
 
     private $_config_all = [];
 
-    public function __construct(int $cls_id)
+    public function __construct( $cls_id)
     {
         $this->__cls_id = $cls_id;
     }
 
-    public function getAllConfig(int $instance_id, bool $array_enable = false)
+    public function getAllConfig( $instance_id,  $array_enable = false)
     {
         return $this->getConfig($instance_id, null, $array_enable);
     }
 
-    public function getConfig(int $instance_id, string $key = null, bool $array_enable = false)
+    public function getConfig( $instance_id,  $key = null,  $array_enable = false)
     {
         $this_config = null;
         if (!isset($this->_config_all[$instance_id])) {
@@ -75,7 +75,7 @@ class ConfigManager
     }
 
 
-    public function getConfigFromCache(int $instance_id)
+    public function getConfigFromCache( $instance_id)
     {
         $path = ConfigTools::getCacheFileName($this->__cls_id, $instance_id);
         if (file_exists($path)) {

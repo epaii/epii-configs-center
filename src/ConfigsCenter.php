@@ -20,7 +20,7 @@ class ConfigsCenter
 
     // public static $goto_config_url = null;
 
-    public static function setConfig(string $cache_dir, string $server_url_pre = null)
+    public static function setConfig( $cache_dir,  $server_url_pre = null)
     {
         //  self::$goto_config_url = $goto_config_url;
         if ($server_url_pre === null) {
@@ -31,7 +31,7 @@ class ConfigsCenter
         self::$cache_dir = $cache_dir;
     }
 
-    public static function addClass(int $cls_id, string $sign, $is_default = true)
+    public static function addClass( $cls_id,  $sign, $is_default = true)
     {
         self::$_class_config[$cls_id] = $sign;
         if ($is_default)
@@ -39,7 +39,7 @@ class ConfigsCenter
 
     }
 
-    public static function getConfig(int $instance_id, string $key = null, bool $array_enable = false)
+    public static function getConfig( $instance_id,  $key = null,  $array_enable = false)
     {
         if (self::$_cls_id === 0) {
             echo "\$_cls_id==0;";
@@ -48,12 +48,12 @@ class ConfigsCenter
         return self::instance(self::$_cls_id)->getConfig($instance_id, $key, $array_enable);
     }
 
-    public static function getAllConfig(int $instance_id, bool $array_enable = false)
+    public static function getAllConfig( $instance_id,  $array_enable = false)
     {
         return self::getConfig($instance_id, null, $array_enable);
     }
 
-    public static function instance(int $cls_id): ConfigManager
+    public static function instance( $cls_id)
     {
         return isset(self::$_more[$cls_id]) ? self::$_more[$cls_id] : (self::$_more[$cls_id] = new ConfigManager($cls_id));
     }
@@ -91,7 +91,7 @@ class ConfigsCenter
         }
     }
 
-    public static function getConfigCenterUrl(int $instance_id, int $cls_id = 0)
+    public static function getConfigCenterUrl( $instance_id,  $cls_id = 0)
     {
         if ($cls_id === 0) $cls_id = self::$_cls_id;
         return self::$server_url . "?app=instance@index&c_id=" . $cls_id . "&id=" . $instance_id . "&sign=" . ConfigTools::mksign($cls_id, $instance_id);
