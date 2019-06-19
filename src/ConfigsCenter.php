@@ -18,6 +18,11 @@ class ConfigsCenter
 
     public static $cache_dir = null;
 
+    public static function isInit()
+    {
+        return self::$cache_dir !== null;
+    }
+
     // public static $goto_config_url = null;
 
     public static function setConfig( $cache_dir,  $server_url_pre = null)
