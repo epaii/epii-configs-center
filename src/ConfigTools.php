@@ -73,7 +73,7 @@ class ConfigTools
     public static function success($msg, $code = null)
     {
         if (!$code) {
-            $code = 2;
+            $code = 1;
         }
         echo json_encode([
             "msg" => $msg,
@@ -87,7 +87,7 @@ class ConfigTools
     public static function error($msg, $code = null)
     {
         if (!$code) {
-            $code = 1;
+            $code = 0;
         }
         echo json_encode([
             "msg" => $msg,
