@@ -26,24 +26,62 @@ class ConfigTools
         return ConfigsCenter::$cache_dir . "/" . $class_id . "";
     }
 
-    private static function parseKeyValue($key, $value, &$p)
+    private static function parseKeyValue($key, $value, &$p, $classid, $instance_id)
     {
 
         if (stripos($key, ".") > 0) {
             if (!isset($p[$tmp = substr($key, 0, $index = strpos($key, "."))]))
                 $p[$tmp] = [];
-            self::parseKeyValue(substr($key, $index + 1), $value, $p[$tmp]);
+            self::parseKeyValue(substr($key, $index + 1), $value, $p[$tmp], $classid, $instance_id);
+            self::handleRemoteContent($p[$tmp], $classid, $instance_id);
         } else
             $p[$key] = $value;
     }
 
-    public static function parse($array)
+    public static function parse($array, $classid, $instance_id)
     {
         $out = [];
         foreach ($array as $key => $value) {
-            self::parseKeyValue($key, $value, $out);
+            self::parseKeyValue($key, $value, $out, $classid, $instance_id);
         }
         return $out;
+    }
+
+
+    private static function handleRemoteContent(&$data, $classid, $instance_id)
+    {
+        if (!is_array($data)) return;
+        if (isset($data["is_remote_content"]) && ($data["is_remote_content"] - 1 == 0)) {
+            $url = $data["url"];
+            $version = isset($data["version"]) ? $data["version"] : "0";
+            if ($version != "0") {
+                $tmep_file = ConfigTools::getCacheFileName($classid, $instance_id) . "." . md5($url) . ".html";
+                file_put_contents($tmep_file, file_get_contents($url));
+                $data["__content__"] = $tmep_file;
+            } else {
+                $data["__content__"] = null;
+            }
+        }
+    }
+
+    public static function getRemotContent($data)
+    {
+        if (!is_array($data)) return $data;
+
+        if (isset($data["is_remote_content"]) && ($data["is_remote_content"] - 1 == 0)) {
+
+            if ($data["__content__"] === null) {
+                return file_get_contents($data["url"]);
+            } else {
+                return file_get_contents($data["__content__"]);
+            }
+
+
+        }
+        //var_dump($data);
+        return $data;
+
+
     }
 
     public static function saveConfigCache($class_id, $object_id, $config)
@@ -78,7 +116,7 @@ class ConfigTools
         echo json_encode([
             "msg" => $msg,
             "code" => $code
-        ],JSON_UNESCAPED_UNICODE);
+        ], JSON_UNESCAPED_UNICODE);
 
         exit;
     }
@@ -92,7 +130,7 @@ class ConfigTools
         echo json_encode([
             "msg" => $msg,
             "code" => $code
-        ],JSON_UNESCAPED_UNICODE);
+        ], JSON_UNESCAPED_UNICODE);
 
         exit;
     }
