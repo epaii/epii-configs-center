@@ -57,7 +57,7 @@ class ConfigsCenter
         return self::instance(self::$_cls_id)->getConfig($instance_id, $key, $array_enable);
     }
 
-    public static function apiGetConfig($instance_id, $key=null)
+    public static function apiGetConfig($instance_id, $key = null)
     {
         if (self::$_cls_id === 0) {
             echo "\$_cls_id==0;";
@@ -87,7 +87,7 @@ class ConfigsCenter
     public static function handleData($data)
     {
 
-        ConfigTools::saveConfigCache($data["class_id"], $data["object_id"], [$json_config = json_decode($data["config"], true), ConfigTools::parse($json_config, $data["class_id"], $data["object_id"])]);
+        return ConfigTools::saveConfigCache($data["class_id"], $data["object_id"], [$json_config = json_decode($data["config"], true), ConfigTools::parse($json_config, $data["class_id"], $data["object_id"])]);
     }
 
     public static function handlePost()
@@ -103,9 +103,12 @@ class ConfigsCenter
             if (empty($_POST['object_id'])) ConfigTools::error("object_id is undefined");
             if (empty($_POST['config'])) ConfigTools::error("config is undefined");
 
-            self::handleData($_POST);
+            if (self::handleData($_POST))
 
             ConfigTools::success('success');
+            else{
+                ConfigTools::error("dir wrong 2");
+            }
             exit;
         } else {
             if (isset($_GET['check']) && $_GET['check'] = 1) {
