@@ -142,4 +142,33 @@ class ConfigTools
         }
         return md5(implode("-", [$class_id, $item_id, ConfigsCenter::$_class_config[$class_id]]));
     }
+
+    public static function getValueFromData($this_config, $key, $local_config_index)
+    {
+        if ($key === null) {
+            return $this_config[$local_config_index];
+        }
+
+        if ($local_config_index == 1) {
+            if (!is_array($key)) {
+                $key = explode(".", $key);
+            }
+        }
+
+        if (!is_array($key)) {
+            return isset($this_config[$local_config_index][$key]) ? $this_config[$local_config_index][$key] : null;
+        }
+
+        $out = $this_config[$local_config_index];
+
+        foreach ($key as $value) {
+            if (isset($out[$value])) {
+                $out = $out[$value];
+            } else {
+                return null;
+            }
+        }
+
+        return ConfigTools::getRemotContent($out);
+    }
 }

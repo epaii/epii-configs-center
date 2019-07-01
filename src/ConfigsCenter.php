@@ -57,7 +57,7 @@ class ConfigsCenter
         return self::instance(self::$_cls_id)->getConfig($instance_id, $key, $array_enable);
     }
 
-    public static function apiGetConfig($instance_id, $key)
+    public static function apiGetConfig($instance_id, $key=null)
     {
         if (self::$_cls_id === 0) {
             echo "\$_cls_id==0;";
