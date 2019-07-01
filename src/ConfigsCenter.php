@@ -33,7 +33,7 @@ class ConfigsCenter
         }
         self::$server_url = $server_url_pre;
 
-        self::$cache_dir = rtrim($cache_dir,DIRECTORY_SEPARATOR);
+        self::$cache_dir = rtrim($cache_dir, DIRECTORY_SEPARATOR);
     }
 
     public static function addClass($cls_id, $sign, $is_default = true)
@@ -53,6 +53,16 @@ class ConfigsCenter
         return self::instance(self::$_cls_id)->getConfig($instance_id, $key, $array_enable);
     }
 
+    public static function apiGetConfig($instance_id, $key)
+    {
+        if (self::$_cls_id === 0) {
+            echo "\$_cls_id==0;";
+            exit;
+        }
+        return self::instance(self::$_cls_id)->apiGetConfig($instance_id, $key);
+    }
+
+
     public static function getConfigValueWithRemoteContent($instance_id, $key)
     {
 
@@ -69,6 +79,13 @@ class ConfigsCenter
         return isset(self::$_more[$cls_id]) ? self::$_more[$cls_id] : (self::$_more[$cls_id] = new ConfigManager($cls_id));
     }
 
+
+    public static function handleData($data)
+    {
+
+        ConfigTools::saveConfigCache($data["class_id"], $data["object_id"], [$json_config = json_decode($data["config"], true), ConfigTools::parse($json_config, $data["class_id"], $data["object_id"])]);
+    }
+
     public static function handlePost()
     {
         if ($_POST) {
@@ -82,7 +99,8 @@ class ConfigsCenter
             if (empty($_POST['object_id'])) ConfigTools::error("object_id is undefined");
             if (empty($_POST['config'])) ConfigTools::error("config is undefined");
 
-            $out = ConfigTools::saveConfigCache($_POST["class_id"], $_POST["object_id"], [$json_config = json_decode($_POST["config"], true), ConfigTools::parse($json_config,$_POST["class_id"],$_POST["object_id"])]);
+            self::handleData($_POST);
+
             ConfigTools::success('success');
             exit;
         } else {

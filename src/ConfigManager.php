@@ -31,6 +31,16 @@ class ConfigManager
         return $this->getConfig($instance_id, $key, true);
     }
 
+    public function apiGetConfig($instance_id, $key)
+    {
+        $ret = file_get_contents(ConfigsCenter::$server_url . "?app=getconfig@api&cls_id=" . $this->__cls_id . "&instance_id=" . $instance_id . "&sign=" . ConfigTools::mksign($this->__cls_id, $instance_id) . "&key=" . $key);
+        if (!$ret) {
+            return false;
+        }
+        return json_decode($ret, true);
+
+    }
+
 
     public function getConfig($instance_id, $key = null, $array_enable = false)
     {
@@ -42,7 +52,7 @@ class ConfigManager
                 //通过接口从服务器获取
                 $api_config = json_decode(file_get_contents(ConfigsCenter::$server_url . "?app=getconfig@index&cls_id=" . $this->__cls_id . "&instance_id=" . $instance_id . "&sign=" . ConfigTools::mksign($this->__cls_id, $instance_id)), true);
 
-                $this->_config_all[$instance_id] = [$json_config = $api_config["config"], ConfigTools::parse($json_config,$this->__cls_id,$instance_id)];
+                $this->_config_all[$instance_id] = [$json_config = $api_config["config"], ConfigTools::parse($json_config, $this->__cls_id, $instance_id)];
 
                 if (isset($api_config['is_cache']) && ($api_config['is_cache'] - 1 == 0)) {
                     ConfigTools::saveConfigCache($this->__cls_id, $instance_id, $this->_config_all[$instance_id]);
