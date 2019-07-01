@@ -37,7 +37,11 @@ class ConfigManager
         if (!$ret) {
             return false;
         }
-        return json_decode($ret, true);
+        $ret = json_decode($ret, true);
+        if (isset($ret["data"]["value"])) {
+            return $ret["data"]["value"];
+        }
+        return false;
 
     }
 
