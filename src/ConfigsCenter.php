@@ -34,6 +34,10 @@ class ConfigsCenter
         self::$server_url = $server_url_pre;
 
         self::$cache_dir = rtrim($cache_dir, DIRECTORY_SEPARATOR);
+        if (!is_dir(self::$cache_dir)) {
+            echo self::$cache_dir . " is wrong!";
+            exit;
+        }
     }
 
     public static function addClass($cls_id, $sign, $is_default = true)
