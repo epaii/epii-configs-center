@@ -10,7 +10,7 @@ namespace epii\configs\center;
 
 class ConfigsCenter
 {
-    public static $server_url = null;
+    public static $server_url = "http://configs.wszx.cc/";
     private static $_cls_id = 0;
 
     public static $_class_config = [];
@@ -25,19 +25,22 @@ class ConfigsCenter
 
     // public static $goto_config_url = null;
 
-    public static function setConfig($cache_dir, $server_url_pre = null)
+    public static function setConfig($cache_dir = null, $server_url_pre = null)
     {
         //  self::$goto_config_url = $goto_config_url;
-        if ($server_url_pre === null) {
-            $server_url_pre = "http://configs.wszx.cc/";
+        if ($server_url_pre !== null) {
+            self::$server_url = $server_url_pre;
         }
-        self::$server_url = $server_url_pre;
 
-        self::$cache_dir = rtrim($cache_dir, DIRECTORY_SEPARATOR);
-        if (!is_dir(self::$cache_dir)) {
-            echo self::$cache_dir . " is wrong!";
-            exit;
+
+        if ($cache_dir !== null) {
+            self::$cache_dir = rtrim($cache_dir, DIRECTORY_SEPARATOR);
+            if (!is_dir(self::$cache_dir)) {
+                echo self::$cache_dir . " is wrong!";
+                exit;
+            }
         }
+
     }
 
     public static function addClass($cls_id, $sign, $is_default = true)
@@ -105,8 +108,8 @@ class ConfigsCenter
 
             if (self::handleData($_POST))
 
-            ConfigTools::success('success');
-            else{
+                ConfigTools::success('success');
+            else {
                 ConfigTools::error("dir wrong 2");
             }
             exit;
