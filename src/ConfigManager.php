@@ -31,7 +31,7 @@ class ConfigManager
         return $this->getConfig($instance_id, $key, true);
     }
 
-    public function apiGetConfig($instance_id, $key)
+    public function apiGetConfig($instance_id, $key=null)
     {
         $ret = file_get_contents(ConfigsCenter::$server_url . "?app=getconfig@api&cls_id=" . $this->__cls_id . "&instance_id=" . $instance_id . "&sign=" . ConfigTools::mksign($this->__cls_id, $instance_id) . "&key=" . $key);
         if (!$ret) {
