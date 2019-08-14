@@ -31,7 +31,7 @@ class ConfigManager
         return $this->getConfig($instance_id, $key, true);
     }
 
-    public function apiGetConfig($instance_id, $key=null)
+    public function apiGetConfig($instance_id, $key = null)
     {
         $ret = file_get_contents(ConfigsCenter::$server_url . "?app=getconfig@api&cls_id=" . $this->__cls_id . "&instance_id=" . $instance_id . "&sign=" . ConfigTools::mksign($this->__cls_id, $instance_id) . "&key=" . $key);
         if (!$ret) {
@@ -73,8 +73,6 @@ class ConfigManager
     }
 
 
-
-
     public function getConfigFromCache($instance_id)
     {
         $path = ConfigTools::getCacheFileName($this->__cls_id, $instance_id);
@@ -82,6 +80,51 @@ class ConfigManager
             return include $path;
         } else {
             return null;
+        }
+    }
+
+
+    public function apiSetConfig($instance_id,$name,$value,$tip)
+    {
+        if(empty($instance_id) || empty($name) || empty($value)) return false;
+        $config_manager = new ConfigManager($this->__cls_id);
+        $has = $config_manager->getConfig($instance_id,$name);
+        if($has){
+            return $this->setSetting($instance_id,$name,$value,null);
+        }else{
+            if(empty($tip)){
+                return false;
+            }
+            return $this->setSetting($instance_id,$name,$value,$tip);
+        }
+    }
+
+    private function setSetting($instance_id,$name,$value,$tip = null)
+    {
+        if(empty($instance_id) || empty($name) || empty($value)) return false;
+
+        $url = ConfigsCenter::$server_url."?app=api";
+        $post_data = array(
+            "class_id" => $this->__cls_id,
+            "object_id" => $instance_id,
+            "name" => $name,
+            "value" => $value,
+            "sign" => ConfigTools::mksign($this->__cls_id,$instance_id)
+        );
+
+        /*var_dump($post_data);die;*/
+
+        if(!empty($tip)){
+            $post_data['tip'] = $tip;
+        }
+
+        $request = json_decode(ConfigTools::curlRequest($url,false,'post',$post_data),true);
+        /*var_dump($request);die;*/
+
+        if($request['code'] == 1){
+            return true;
+        }else{
+            return false;
         }
     }
 }

@@ -136,4 +136,9 @@ class ConfigsCenter
         if ($cls_id === 0) $cls_id = self::$_cls_id;
         return self::$server_url . "?app=instance@index&c_id=" . $cls_id . "&id=" . $instance_id . "&sign=" . ConfigTools::mksign($cls_id, $instance_id) . "&title=" . urlencode($title);
     }
+
+    public static function apiSetConfig($class_id,$instance_id,$name,$value,$tip = null)
+    {
+        return self::instance($class_id)->apiSetConfig($instance_id,$name,$value,$tip);
+    }
 }
