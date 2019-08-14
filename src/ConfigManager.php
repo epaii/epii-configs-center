@@ -97,6 +97,7 @@ class ConfigManager
         if (empty($instance_id) || empty($name) || empty($value)) return false;
 
         $url = ConfigsCenter::$server_url . "?app=api";
+
         $post_data = array(
             "class_id" => $this->__cls_id,
             "object_id" => $instance_id,
@@ -105,14 +106,17 @@ class ConfigManager
             "sign" => ConfigTools::mksign($this->__cls_id, $instance_id)
         );
 
-        /*var_dump($post_data);die;*/
+        if(is_array($value)){
+            $post_data['value_array'] = json_encode($value);
+        }
+
+
 
         if (!empty($tip)) {
             $post_data['tip'] = $tip;
         }
 
         $request = json_decode(ConfigTools::curlRequest($url, false, 'post', $post_data), true);
-        /*var_dump($request);die;*/
 
         if ($request['code'] == 1) {
             return true;

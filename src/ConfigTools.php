@@ -28,12 +28,12 @@ class ConfigTools
 
     private static function parseKeyValue($key, $value, &$p, $classid, $instance_id)
     {
-
+        if (isset($p) && !is_array($p))
+            $p =["__value__"=>$p];
         if (stripos($key, ".") > 0) {
             if (!isset($p[$tmp = substr($key, 0, $index = strpos($key, "."))]))
                 $p[$tmp] = [];
-            self::parseKeyValue(substr($key, $index + 1), $value, $p[$tmp], $classid, $instance_id);
-            self::handleRemoteContent($p[$tmp], $classid, $instance_id);
+            self::parseKeyValue(substr($key, $index + 1), $value, $p[$tmp]);
         } else
             $p[$key] = $value;
     }
