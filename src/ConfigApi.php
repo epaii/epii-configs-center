@@ -13,7 +13,8 @@ class ConfigApi
 {
     public static function setConfig($class_id,$object_id,$name,$value,$tip = null,$url = "http://configs.wszx.cc/?app=api")
     {
-        $has = (new ConfigManager($class_id))->getConfig($object_id,$name);
+        $config_manager = new ConfigManager($class_id);
+        $has = $config_manager->getConfig($object_id,$name);
         if($has){
             return self::setSetting($class_id,$object_id,$name,$value,null,$url);
         }else{
