@@ -29,13 +29,13 @@ class ConfigApi
     {
         if(empty($class_id) || empty($object_id) || empty($name) || empty($value)) return false;
 
-        $post_data = [
+        $post_data = array(
             "class_id" => $class_id,
             "object_id" => $object_id,
             "name" => $name,
             "value" => $value,
             "sign" => ConfigTools::mksign($class_id,$object_id)
-        ];
+        );
 
         if(!empty($tip)){
             $post_data['tip'] = $tip;
