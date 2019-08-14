@@ -104,4 +104,31 @@ class ConfigTools
         }
         return md5(implode("-", [$class_id, $item_id, ConfigsCenter::$_class_config[$class_id]]));
     }
+
+    public static function curlRequest($url, $https = true, $method = "get", $data = null, $json = false)
+    {
+        $headers = array(
+            "Content-type: application/json;charset='utf-8'",
+            "Accept: application/json",
+            "Cache-Control: no-cache",
+            "Pragma: no-cache",
+        );
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        if ($https === true) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        }
+        if ($method === 'post') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        }
+        if ($json) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
+        $content = curl_exec($ch);
+        curl_close($ch);
+        return $content;
+    }
 }
