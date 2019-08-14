@@ -10,7 +10,7 @@ namespace epii\configs\center;
 
 class ConfigsCenter
 {
-    public static $server_url = null;
+    public static $server_url = "http://configs.wszx.cc/";
     private static $_cls_id = 0;
 
     public static $_class_config = [];
@@ -25,18 +25,25 @@ class ConfigsCenter
 
     // public static $goto_config_url = null;
 
-    public static function setConfig( $cache_dir,  $server_url_pre = null)
+    public static function setConfig($cache_dir = null, $server_url_pre = null)
     {
         //  self::$goto_config_url = $goto_config_url;
-        if ($server_url_pre === null) {
-            $server_url_pre = "http://configs.wszx.cc/";
+        if ($server_url_pre !== null) {
+            self::$server_url = $server_url_pre;
         }
-        self::$server_url = $server_url_pre;
 
-        self::$cache_dir = $cache_dir;
+
+        if ($cache_dir !== null) {
+            self::$cache_dir = rtrim($cache_dir, DIRECTORY_SEPARATOR);
+            if (!is_dir(self::$cache_dir)) {
+                echo self::$cache_dir . " is wrong!";
+                exit;
+            }
+        }
+
     }
 
-    public static function addClass( $cls_id,  $sign, $is_default = true)
+    public static function addClass($cls_id, $sign, $is_default = true)
     {
         self::$_class_config[$cls_id] = $sign;
         if ($is_default)
@@ -44,7 +51,7 @@ class ConfigsCenter
 
     }
 
-    public static function getConfig( $instance_id,  $key = null,  $array_enable = false)
+    public static function getConfig($instance_id, $key = null, $array_enable = false)
     {
         if (self::$_cls_id === 0) {
             echo "\$_cls_id==0;";
@@ -53,14 +60,37 @@ class ConfigsCenter
         return self::instance(self::$_cls_id)->getConfig($instance_id, $key, $array_enable);
     }
 
-    public static function getAllConfig( $instance_id,  $array_enable = false)
+    public static function apiGetConfig($instance_id, $key = null)
+    {
+        if (self::$_cls_id === 0) {
+            echo "\$_cls_id==0;";
+            exit;
+        }
+        return self::instance(self::$_cls_id)->apiGetConfig($instance_id, $key);
+    }
+
+
+    public static function getConfigValueWithRemoteContent($instance_id, $key)
+    {
+
+        return self::getConfig($instance_id, $key, true);
+    }
+
+    public static function getAllConfig($instance_id, $array_enable = false)
     {
         return self::getConfig($instance_id, null, $array_enable);
     }
 
-    public static function instance( $cls_id)
+    public static function instance($cls_id)
     {
         return isset(self::$_more[$cls_id]) ? self::$_more[$cls_id] : (self::$_more[$cls_id] = new ConfigManager($cls_id));
+    }
+
+
+    public static function handleData($data)
+    {
+
+        return ConfigTools::saveConfigCache($data["class_id"], $data["object_id"], [$json_config = json_decode($data["config"], true), ConfigTools::parse($json_config, $data["class_id"], $data["object_id"])]);
     }
 
     public static function handlePost()
@@ -76,8 +106,12 @@ class ConfigsCenter
             if (empty($_POST['object_id'])) ConfigTools::error("object_id is undefined");
             if (empty($_POST['config'])) ConfigTools::error("config is undefined");
 
-            $out = ConfigTools::saveConfigCache($_POST["class_id"], $_POST["object_id"], [$json_config = json_decode($_POST["config"], true), ConfigTools::parse($json_config)]);
-            ConfigTools::success('success');
+            if (self::handleData($_POST))
+
+                ConfigTools::success('success');
+            else {
+                ConfigTools::error("dir wrong 2");
+            }
             exit;
         } else {
             if (isset($_GET['check']) && $_GET['check'] = 1) {
@@ -86,6 +120,7 @@ class ConfigsCenter
                         ConfigTools::error("dir wrong 1");
                     }
                 }
+
                 if (is_writeable(self::$cache_dir)) {
                     ConfigTools::success("成功");
                 } else {
@@ -96,9 +131,9 @@ class ConfigsCenter
         }
     }
 
-    public static function getConfigCenterUrl( $instance_id,  $cls_id = 0,$title="")
+    public static function getConfigCenterUrl($instance_id, $cls_id = 0, $title = "")
     {
         if ($cls_id === 0) $cls_id = self::$_cls_id;
-        return self::$server_url . "?app=instance@index&c_id=" . $cls_id . "&id=" . $instance_id . "&sign=" . ConfigTools::mksign($cls_id, $instance_id)."&title=".$title;
+        return self::$server_url . "?app=instance@index&c_id=" . $cls_id . "&id=" . $instance_id . "&sign=" . ConfigTools::mksign($cls_id, $instance_id) . "&title=" . urlencode($title);
     }
 }
