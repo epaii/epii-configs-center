@@ -68,7 +68,10 @@ class ConfigsCenter
         }
         return self::instance(self::$_cls_id)->apiGetConfig($instance_id, $key);
     }
-
+    public static function apiSetConfig($class_id,$instance_id,$name,$value,$tip = "")
+    {
+        return self::instance($class_id)->apiSetConfig($instance_id,$name,$value,$tip);
+    }
 
     public static function getConfigValueWithRemoteContent($instance_id, $key)
     {
@@ -137,8 +140,5 @@ class ConfigsCenter
         return self::$server_url . "?app=instance@index&c_id=" . $cls_id . "&id=" . $instance_id . "&sign=" . ConfigTools::mksign($cls_id, $instance_id) . "&title=" . urlencode($title);
     }
 
-    public static function apiSetConfig($class_id,$instance_id,$name,$value,$tip = null)
-    {
-        return self::instance($class_id)->apiSetConfig($instance_id,$name,$value,$tip);
-    }
+
 }

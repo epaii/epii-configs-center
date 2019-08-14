@@ -84,46 +84,39 @@ class ConfigManager
     }
 
 
-    public function apiSetConfig($instance_id,$name,$value,$tip)
+    public function apiSetConfig($instance_id, $name, $value, $tip = "")
     {
-        if(empty($instance_id) || empty($name) || empty($value)) return false;
-        $config_manager = new ConfigManager($this->__cls_id);
-        $has = $config_manager->getConfig($instance_id,$name);
-        if($has){
-            return $this->setSetting($instance_id,$name,$value,null);
-        }else{
-            if(empty($tip)){
-                return false;
-            }
-            return $this->setSetting($instance_id,$name,$value,$tip);
-        }
+        if (empty($instance_id) || empty($name) || empty($value)) return false;
+
+        return $this->setSetting($instance_id, $name, $value, $tip);
+
     }
 
-    private function setSetting($instance_id,$name,$value,$tip = null)
+    private function setSetting($instance_id, $name, $value, $tip = null)
     {
-        if(empty($instance_id) || empty($name) || empty($value)) return false;
+        if (empty($instance_id) || empty($name) || empty($value)) return false;
 
-        $url = ConfigsCenter::$server_url."?app=api";
+        $url = ConfigsCenter::$server_url . "?app=api";
         $post_data = array(
             "class_id" => $this->__cls_id,
             "object_id" => $instance_id,
             "name" => $name,
             "value" => $value,
-            "sign" => ConfigTools::mksign($this->__cls_id,$instance_id)
+            "sign" => ConfigTools::mksign($this->__cls_id, $instance_id)
         );
 
         /*var_dump($post_data);die;*/
 
-        if(!empty($tip)){
+        if (!empty($tip)) {
             $post_data['tip'] = $tip;
         }
 
-        $request = json_decode(ConfigTools::curlRequest($url,false,'post',$post_data),true);
+        $request = json_decode(ConfigTools::curlRequest($url, false, 'post', $post_data), true);
         /*var_dump($request);die;*/
 
-        if($request['code'] == 1){
+        if ($request['code'] == 1) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
